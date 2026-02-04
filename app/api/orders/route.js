@@ -14,18 +14,7 @@ export async function POST(req) {
       throw new Error("No menu items selected");
     }
 
-    // 1️⃣ Check if table already has an active session
-    const sessionSnap = await db.collection("sessions")
-      .where("tableId", "==", tableId)
-      .where("status", "==", "active")
-      .limit(1)
-      .get();
-
-    if (!sessionSnap.empty) {
-      throw new Error("Table is currently occupied. Please wait.");
-    }
-
-    // 2️⃣ Create new session
+    // Create new session
     const sessionRef = await db.collection("sessions").add({
       tableId,
       customerName,
@@ -35,14 +24,14 @@ export async function POST(req) {
     });
     const sessionId = sessionRef.id;
 
-    // 3️⃣ Create order
+    // Create order
     const orderRef = await db.collection("orders").add({
       sessionId,
       status: "pending",
       createdAt: new Date()
     });
 
-    // 4️⃣ Create order_items in batch
+    // Create order_items in batch
     const batch = db.batch();
 
     for (const item of items) {

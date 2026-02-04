@@ -8,7 +8,7 @@ export async function GET(req, context) {
 
     if (!tableId) throw new Error("Table ID is required");
 
-    // 1️⃣ Check active sessions for table
+    // Check active sessions for table
     const sessionSnap = await db
       .collection("sessions")
       .where("tableId", "==", tableId)
@@ -24,19 +24,19 @@ export async function GET(req, context) {
       });
     }
 
-    // 2️⃣ Process ALL active sessions
+    // Process ALL active sessions
     const allSessions = sessionSnap.docs.map(doc => ({
       sessionId: doc.id,
       ...doc.data()
     }));
 
-    // 3️⃣ Get orders for all sessions
+    // Get orders for all sessions
     const ordersSnap = await db
       .collection("orders")
       .where("sessionId", "in", allSessions.map(s => s.sessionId))
       .get();
 
-    // 4️⃣ Get all order items
+    // Get all order items
     const orderIds = ordersSnap.docs.map(doc => doc.id);
     let allItems = [];
 
@@ -53,7 +53,7 @@ export async function GET(req, context) {
       }));
     }
 
-    // 5️⃣ Aggregate data by session/order
+    // Aggregate data by session/order
     const orders = ordersSnap.docs.map(orderDoc => {
       const orderItems = allItems.filter(i => i.orderId === orderDoc.id);
       const total = orderItems.reduce((sum, i) => sum + (i.price || 0) * (i.qty || 0), 0);
@@ -66,7 +66,7 @@ export async function GET(req, context) {
       };
     });
 
-    // 6️⃣ Final response
+    // Final response
     return success({
       tableId,
       status: "occupied",
