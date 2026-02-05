@@ -4,7 +4,7 @@ import { success, error } from "../../../../lib/response";
 // GET /api/cashier/tables
 export async function GET() {
   try {
-    // 1️⃣ Get all active sessions
+    // Get all active sessions
     const sessionsSnap = await db.collection("sessions")
       .where("status", "==", "active")
       .get();
@@ -15,7 +15,7 @@ export async function GET() {
       const session = doc.data();
       const sessionId = doc.id;
 
-      // 2️⃣ Get all orders for this session
+      // Get all orders for this session
       const ordersSnap = await db.collection("orders")
         .where("sessionId", "==", sessionId)
         .get();
@@ -27,7 +27,7 @@ export async function GET() {
         const order = orderDoc.data();
         const orderId = orderDoc.id;
 
-        // 3️⃣ Get order items
+        // Get order items
         const itemsSnap = await db.collection("order_items")
           .where("orderId", "==", orderId)
           .get();
